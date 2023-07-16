@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import 'colors.dart';
@@ -106,7 +104,7 @@ ElevatedButtonThemeData _elevatedButtonThemeData(AppTheme appTheme) {
           shape: const StadiumBorder(),
           foregroundColor: const Color(0xFFE1F5FE),
           side: BorderSide(color: FColor.isLightMaterialColor.shade900, strokeAlign: BorderSide.strokeAlignInside),
-          padding: Platform.isWindows ? const EdgeInsets.symmetric(vertical: 10.0) : EdgeInsets.zero,
+          padding: const EdgeInsets.symmetric(vertical: 10.0),
           textStyle: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
           visualDensity: VisualDensity.comfortable,
         ),
@@ -117,7 +115,7 @@ ElevatedButtonThemeData _elevatedButtonThemeData(AppTheme appTheme) {
           shape: const StadiumBorder(),
           foregroundColor: const Color(0xFFE1F5FE),
           side: BorderSide(color: FColor.isLightMaterialColor.shade600, strokeAlign: BorderSide.strokeAlignInside),
-          padding: Platform.isWindows ? const EdgeInsets.symmetric(vertical: 10.0) : EdgeInsets.zero,
+          padding: const EdgeInsets.symmetric(vertical: 10.0),
           textStyle: const TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
           visualDensity: VisualDensity.comfortable,
         ),
@@ -133,8 +131,8 @@ OutlinedButtonThemeData _outlinedButtonThemeDataa(AppTheme appTheme) {
       return OutlinedButtonThemeData(
         style: ElevatedButton.styleFrom(
           side: BorderSide(color: FColor.isLightMaterialColor.shade900, strokeAlign: BorderSide.strokeAlignInside),
-          padding: Platform.isWindows ? const EdgeInsets.symmetric(vertical: 10.0) : EdgeInsets.zero,
-          textStyle: _textThemeData(appTheme).titleMedium,
+          padding: const EdgeInsets.all(10.0),
+          textStyle: _textThemeData(appTheme).titleMedium?.copyWith(fontSize: 12.0),
           visualDensity: VisualDensity.comfortable,
         ),
       );
@@ -143,8 +141,8 @@ OutlinedButtonThemeData _outlinedButtonThemeDataa(AppTheme appTheme) {
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white70,
           side: BorderSide(color: FColor.isLightMaterialColor.shade600, strokeAlign: BorderSide.strokeAlignInside),
-          padding: Platform.isWindows ? const EdgeInsets.symmetric(vertical: 10.0) : EdgeInsets.zero,
-          textStyle: _textThemeData(appTheme).titleMedium,
+          padding: const EdgeInsets.all(10.0),
+          textStyle: _textThemeData(appTheme).titleMedium?.copyWith(fontSize: 12.0),
           visualDensity: VisualDensity.comfortable,
         ),
       );

@@ -66,6 +66,7 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> with WindowListener
                   child: Row(
                     children: <Widget>[
                       InkWell(onTap: widget.onpressedIconApp, child: widget.iconApp ?? const SizedBox()),
+                      const SizedBox(width: 8.0),
                       Text(widget.title, style: Theme.of(context).textTheme.bodySmall),
                     ],
                   ),
@@ -128,28 +129,44 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> with WindowListener
       builder: (_) {
         return WillPopScope(
           onWillPop: () async => false,
-          child: AlertDialog(
-            title: const Text(ConstantString.fExitQ),
-            titleTextStyle: textTheme.titleSmall,
-            content: const Text(ConstantString.fExitN),
-            contentTextStyle: Theme.of(context).textTheme.bodyLarge,
-            actions: <Widget>[
-              OutlinedButton(
-                child: const Text(ConstantString.fCancel),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  ref.read(isExitAppProvider.notifier).state = false;
-                },
+          child: Dialog(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(ConstantString.fExitQ, style: textTheme.titleSmall),
+                  const SizedBox(height: 12),
+                  Text(ConstantString.fExitN, style: textTheme.bodyLarge?.copyWith(fontSize: 14.0)),
+                  const SizedBox(height: 20),
+                  Container(
+                    alignment: Alignment.bottomRight,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        OutlinedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            ref.read(isExitAppProvider.notifier).state = false;
+                          },
+                          child: const Text(ConstantString.fCancel),
+                        ),
+                        OutlinedButton(
+                          onPressed: widget.onpressedExitAppDisconect,
+                          child: const Text(ConstantString.fExitDisconnect),
+                        ),
+                        OutlinedButton(
+                          onPressed: widget.onpressedExitApp,
+                          child: const Text(ConstantString.fExit),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              OutlinedButton(
-                onPressed: widget.onpressedExitApp,
-                child: const Text(ConstantString.fExit),
-              ),
-              OutlinedButton(
-                onPressed: widget.onpressedExitAppDisconect,
-                child: const Text(ConstantString.fExitDisconnect),
-              ),
-            ],
+            ),
           ),
         );
       },
