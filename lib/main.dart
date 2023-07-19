@@ -8,7 +8,7 @@ import 'src/providers/tray_manager_provider.dart';
 import 'src/screen/home/home_screen.dart';
 import 'src/utils/themes.dart';
 
-Future<void> main(List<String> args) async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await windowManager.ensureInitialized();
 

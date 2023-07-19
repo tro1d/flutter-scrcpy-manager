@@ -12,11 +12,9 @@ class ConsoleScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isDark = Theme.of(context).brightness.name == 'dark';
-
-    final TextEditingController inputController = TextEditingController();
     final TextEditingController outputController = ref.watch(outputControllerProvider);
 
-    void runCommand() async {
+    void runCmd(TextEditingController inputController) async {
       final output = ref.watch(outputListProvider);
       final String command = inputController.text;
       inputController.clear();
@@ -25,6 +23,33 @@ class ConsoleScreen extends ConsumerWidget {
       output.add(result);
       outputController.text = ref.watch(outputListProvider).join();
     }
+
+    final List<String> adbCommands = [
+      'adb devices',
+      'adb devices -l',
+      'adb kill-server',
+      'adb start-server ',
+      'adb reboot',
+      'adb reboot recovery ',
+      'adb reboot-bootloader',
+      'adb shell',
+      'adb shell getprop',
+      'adb usb',
+      "adb connect ",
+      'adb tcpip',
+      'adb -s',
+      "adb logcat",
+      "adb logcat -c ",
+      "adb shell input keyevent ",
+      "adb shell ls ",
+      "adb shell ls -s ",
+      "adb shell ls -R ",
+      "adb bugreport",
+      "adb backup",
+      "adb restore",
+      "adb sideload",
+      'clear',
+    ];
 
     return Column(
       children: <Widget>[
@@ -53,24 +78,63 @@ class ConsoleScreen extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           margin: const EdgeInsets.only(top: 4.0, bottom: 8.0),
-          child: Column(
-            children: <Widget>[
-              TextField(
-                controller: inputController,
+          child: RawAutocomplete<String>(
+            optionsBuilder: (textEditingController) {
+              List<String> matches = <String>[];
+              matches.addAll(adbCommands);
+              matches.retainWhere((s) => s.toLowerCase().startsWith(textEditingController.text.toLowerCase()));
+              return matches;
+            },
+            fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
+              return TextFormField(
+                focusNode: focusNode,
+                controller: textEditingController,
                 maxLines: null,
                 textInputAction: TextInputAction.done,
-                onEditingComplete: () => runCommand(),
+                onFieldSubmitted: (value) => runCmd(textEditingController),
                 decoration: InputDecoration(
                   labelText: 'CMD',
                   labelStyle: Theme.of(context).textTheme.bodyLarge,
+                  suffixIconColor: FColor.s600(isDark),
                   suffixIcon: IconButton(
-                    onPressed: () => runCommand(),
+                    onPressed: () => runCmd(textEditingController),
                     icon: const Icon(Icons.send_rounded),
                   ),
-                  suffixIconColor: FColor.s600(isDark),
                 ),
-              ),
-            ],
+              );
+            },
+            optionsViewBuilder: (context, onSelected, options) {
+              return Transform.translate(
+                offset: const Offset(0, -45),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Material(
+                    type: MaterialType.transparency,
+                    elevation: 4.0,
+                    child: SizedBox(
+                      height: 36.0,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.all(8.0),
+                        itemCount: options.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final String option = options.elementAt(index);
+                          return Text(
+                            option,
+                            maxLines: null,
+                            style: TextStyle(
+                              color: FColor.s600(isDark).withOpacity(0.6),
+                              fontSize: 16.0,
+                              letterSpacing: 0.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ],
