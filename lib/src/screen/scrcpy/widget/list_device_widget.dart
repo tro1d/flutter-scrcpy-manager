@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../providers/localization_provider.dart';
 import '../../../providers/scrcpy_provider.dart';
 import '../../../utils/colors.dart';
-import '../../../utils/constant_string.dart';
 
 class ListDeviceWidget extends ConsumerWidget {
   const ListDeviceWidget({Key? key, this.color, required this.devices, required this.currentDevice, required this.windowsDNS})
@@ -18,6 +18,7 @@ class ListDeviceWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isDark = Theme.of(context).brightness.name == 'dark';
     final TextTheme textTheme = Theme.of(context).textTheme;
+    final localization = ref.watch(localizationProvider);
 
     final partDNS = windowsDNS.split(".");
     final windowsIp = '${partDNS[0]}.${partDNS[1]}.${partDNS[2]}';
@@ -79,20 +80,20 @@ class ListDeviceWidget extends ConsumerWidget {
                       Text.rich(
                         TextSpan(
                           children: <InlineSpan>[
-                            TextSpan(text: ConstantString.fStatus, style: textTheme.bodyLarge),
+                            TextSpan(text: localization.fStatus, style: textTheme.bodyLarge),
                             if (currentDevice.deviceStatus == "device")
                               TextSpan(
-                                text: ConstantString.fOnline,
+                                text: localization.fOnline,
                                 style: textTheme.titleSmall!.copyWith(color: FColor.green),
                               ),
                             if (currentDevice.deviceStatus == "offline")
                               TextSpan(
-                                text: ConstantString.fOffline,
+                                text: localization.fOffline,
                                 style: textTheme.titleSmall!.copyWith(color: FColor.amber),
                               ),
                             if (currentDevice.deviceStatus == "unauthorized")
                               TextSpan(
-                                text: ConstantString.fUnauthorized,
+                                text: localization.fUnauthorized,
                                 style: textTheme.titleSmall!.copyWith(color: FColor.red),
                               ),
                           ],
@@ -101,7 +102,7 @@ class ListDeviceWidget extends ConsumerWidget {
                       Text.rich(
                         TextSpan(
                           children: <InlineSpan>[
-                            TextSpan(text: ConstantString.fDeviceIP, style: textTheme.bodyLarge),
+                            TextSpan(text: localization.fDeviceIP, style: textTheme.bodyLarge),
                             TextSpan(
                               text: currentDevice.deviceIP,
                               style: textTheme.titleSmall!.copyWith(color: FColor.green),
@@ -122,24 +123,130 @@ class ListDeviceWidget extends ConsumerWidget {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: currentDevice.deviceIP.startsWith(windowsIp)
-                        ? () => ref.read(scrcpyProvider.notifier).runScrcpy(currentDevice, ConstantString.fTCPIP)
+                        ? () => showDialog(
+                              context: context,
+                              builder: (context) => DialogConnect(
+                                currentDevice: currentDevice,
+                                mode: localization.fTCPIP,
+                              ),
+                            )
                         : null,
                     icon: const Icon(Icons.wifi_rounded),
-                    label: const Text(ConstantString.fTCPIP),
+                    label: Text(localization.fTCPIP),
                   ),
                 ),
                 const SizedBox(width: 8.0),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () => ref.read(scrcpyProvider.notifier).runScrcpy(currentDevice, ConstantString.fUSB),
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (context) => DialogConnect(
+                        currentDevice: currentDevice,
+                        mode: localization.fUSB,
+                      ),
+                    ),
                     icon: const Icon(Icons.usb_rounded),
-                    label: const Text(ConstantString.fUSB),
+                    label: Text(localization.fUSB),
                   ),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class DialogConnect extends ConsumerWidget {
+  const DialogConnect({Key? key, required this.currentDevice, required this.mode}) : super(key: key);
+
+  final DeviceStatus currentDevice;
+  final String mode;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bool isDark = Theme.of(context).brightness.name == 'dark';
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final localization = ref.watch(localizationProvider);
+    final String dialogTitle = '${currentDevice.deviceModel.isNotEmpty ? currentDevice.deviceModel : '???'} [ ${mode.toUpperCase()} ]';
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Dialog(
+        backgroundColor: FColor.s100(isDark),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 200.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                decoration: BoxDecoration(color: FColor.s200(isDark), borderRadius: const BorderRadius.vertical(top: Radius.circular(6))),
+                child: Text(dialogTitle, textAlign: TextAlign.center),
+              ),
+              Container(
+                margin: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
+                decoration: BoxDecoration(border: Border.all(color: FColor.s200(isDark))),
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      shape: Border(bottom: BorderSide(color: FColor.s300(isDark))),
+                      visualDensity: const VisualDensity(vertical: -4),
+                      dense: true,
+                      title: Text(localization.fAlwaysOnTop, style: textTheme.titleSmall),
+                      trailing: Transform.scale(
+                        scale: 0.8,
+                        child: Checkbox(
+                          onChanged: (value) => ref.read(alwaysOnTopProvider.notifier).state = value!,
+                          value: ref.watch(alwaysOnTopProvider),
+                        ),
+                      ),
+                    ),
+                    ListTile(
+                      shape: Border(bottom: BorderSide(color: FColor.s300(isDark))),
+                      visualDensity: const VisualDensity(vertical: -4),
+                      dense: true,
+                      title: Text(localization.fRecordScreen, style: textTheme.titleSmall),
+                      subtitle: ref.watch(recordScreenMp4Provider)
+                          ? Text('...\\Documents\\FfouryAPP', style: textTheme.bodySmall?.copyWith(fontSize: 10.0))
+                          : null,
+                      trailing: Transform.scale(
+                        scale: 0.8,
+                        child: Checkbox(
+                          onChanged: (value) => ref.read(recordScreenMp4Provider.notifier).state = value!,
+                          value: ref.watch(recordScreenMp4Provider),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    OutlinedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(localization.fCancel),
+                    ),
+                    const SizedBox(width: 8.0),
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        ref.read(scrcpyProvider.notifier).runScrcpy(currentDevice, mode);
+                      },
+                      style: OutlinedButton.styleFrom(backgroundColor: FColor.green.withOpacity(0.8)),
+                      child: Text(localization.fConnect),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

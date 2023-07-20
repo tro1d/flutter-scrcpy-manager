@@ -1,0 +1,52 @@
+import 'dart:ui';
+
+import 'localization.dart';
+
+Localization of(Locale locale) {
+  return Localization(
+    // EN
+    flanguageCode: 'en',
+    flanguage: 'Language',
+    fApp: "Scrcpy Manager",
+    fOnline: "Online",
+    fOffline: "Offline",
+    fUnauthorized: "Unauthorized",
+    fLoading: "Loading...",
+    fNotInstalled: "Not Installed",
+    fUpdate: "Update",
+    fNewversion: "New Version",
+    fInstalled: "Installed",
+    fStatus: "Status: ",
+    fDeviceIP: "Device IP: ",
+    fDownload: "Download: ",
+    fCheckupdate: "Check update: ",
+    fScrcpyVersion: "Scrcpy Version: ",
+    fWaitingDevice: "Waiting for the device to connect...",
+    fDeviceAttached: "Device connected",
+    fUSB: "USB",
+    fTCPIP: "TCP/IP",
+    fNoteLabel: "Note",
+    fLog: "Log",
+    fNote: 'In TCP/IP mode, only one device can be used. If you want to use more than one device, use the console.',
+    fOpenScrcpyManager: "Open Scrcpy Manager",
+    fOpenConsole: "Open Console",
+    fThemeMode: "Theme Mode",
+    fDark: "Dark",
+    fLight: "Light",
+    fSettings: "Settings",
+    fUninstallScrcpy: "Uninstall Scrcpy",
+    fUpdateScrcpy: "Update Scrcpy",
+    fAbout: "About",
+    fAboutNote: "This is a simple Scrcpy Manager with Command Prompt created in Flutter.",
+    fFfouryAPPScrcpyManager: "Scrcpy Manager - FfouryAPP",
+    fGenymobilescrcpy: "Scrcpy - Genymobile",
+    fAlwaysOnTop: 'Always on top',
+    fRecordScreen: 'Record screen',
+    fConnect: 'Connect',
+    fCancel: "Cancel",
+    fExit: "Exit",
+    fExitDisconnect: "Exit and Disconnect",
+    fExitQ: "Are you sure you want to exit?",
+    fExitN: "Don't forget to disconnect all ADB connections.",
+  );
+}

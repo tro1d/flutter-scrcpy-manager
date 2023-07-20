@@ -11,7 +11,7 @@ import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../utils/constant_string.dart';
-import 'theme_provider.dart';
+import 'localization_provider.dart';
 
 final trayManagerProvider = AutoDisposeAsyncNotifierProvider<TrayManagerNotifier, void>(TrayManagerNotifier.new);
 
@@ -27,45 +27,30 @@ class TrayManagerNotifier extends AutoDisposeAsyncNotifier<void> with TrayListen
   Future<void> initialized() async {
     log('TrayManager initialized');
     await trayManager.setIcon(ConstantString.fIappIco);
-    await trayManager.setToolTip(ConstantString.fApp);
+    await trayManager.setToolTip(ref.watch(localizationProvider).fApp);
     await trayManager.setContextMenu(_buildMenu());
     await windowManager.setPreventClose(true);
   }
 
   Menu _buildMenu() {
+    final localization = ref.watch(localizationProvider);
     return Menu(
       items: <MenuItem>[
         MenuItem(
-          label: ConstantString.fOpenScrcpyManager,
+          label: localization.fOpenScrcpyManager,
           onClick: (menuItem) => onTapOpenScrcpy(),
         ),
         MenuItem(
-          label: "Buka Console",
+          label: localization.fOpenConsole,
           onClick: (menuItem) => onTapOpenConsole(),
         ),
         MenuItem.separator(),
-        MenuItem.submenu(
-          label: ConstantString.fThemeMode,
-          submenu: Menu(
-            items: <MenuItem>[
-              MenuItem(
-                label: ConstantString.fDark,
-                onClick: (menuItem) => _onTapDarkMode(),
-              ),
-              MenuItem(
-                label: ConstantString.fLight,
-                onClick: (menuItem) => _onTapLightMode(),
-              ),
-            ],
-          ),
-        ),
-        MenuItem.separator(),
         MenuItem(
-          label: ConstantString.fAbout,
+          label: localization.fAbout,
           onClick: (menuItem) => _onTapAbout(),
         ),
         MenuItem(
-          label: ConstantString.fExit,
+          label: localization.fExit,
           onClick: (menuItem) => onTapExit(),
         ),
       ],
@@ -80,16 +65,6 @@ class TrayManagerNotifier extends AutoDisposeAsyncNotifier<void> with TrayListen
   @override
   void onTrayIconRightMouseDown() async {
     trayManager.popUpContextMenu();
-  }
-
-  Future<void> _onTapLightMode() async {
-    ref.read(themeProvider.notifier).isLight();
-    await windowManager.restore();
-  }
-
-  Future<void> _onTapDarkMode() async {
-    ref.read(themeProvider.notifier).isDark();
-    await windowManager.restore();
   }
 
   Future<void> _onTapAbout() async {

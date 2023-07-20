@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../providers/localization_provider.dart';
 import '../../providers/scrcpy_provider.dart';
 import '../../providers/tray_manager_provider.dart';
 import '../../utils/colors.dart';
@@ -15,26 +16,27 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isDark = Theme.of(context).brightness.name == 'dark';
+    final localization = ref.watch(localizationProvider);
 
     final List<DeviceStatus> devices = ref.watch(devicesListProvider);
     final DeviceStatus currentDevice = ref.watch(deviceProvider);
 
     final scrcpyStatus = ref.watch(scrcpyProvider).when(
           error: (error, stackTrace) => {'status': '$error', "version": '-'},
-          loading: () => {'status': ConstantString.fLoading, "version": '-'},
+          loading: () => {'status': localization.fLoading, "version": '-'},
           data: (data) => data,
         );
 
     final adbStatus = ref.watch(adbDevicesProvider).when(
           error: (error, stackTrace) => 'Error: $error',
-          loading: () => ConstantString.fWaitingDevice,
+          loading: () => localization.fWaitingDevice,
           data: (data) {
             if (data == ProcessADBStatus.waitingDevice) {
-              return ConstantString.fWaitingDevice;
+              return localization.fWaitingDevice;
             } else if (data == ProcessADBStatus.deviceAttached) {
-              return ConstantString.fDeviceAttached;
+              return localization.fDeviceAttached;
             } else {
-              return ConstantString.fWaitingDevice;
+              return localization.fWaitingDevice;
             }
           },
         );
@@ -48,7 +50,7 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: FColor.s100(isDark).withOpacity(0.85),
       appBar: CustomAppBar(
-        title: ConstantString.fApp,
+        title: localization.fApp,
         backgroundColor: FColor.s050(isDark),
         brightness: isDark ? Brightness.dark : Brightness.light,
         iconApp: Image.asset(ConstantString.fIappPng, scale: 6.0),
@@ -75,25 +77,26 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Future<Dialog?> dialogAbout(BuildContext context, WidgetRef ref) {
+    final localization = ref.watch(localizationProvider);
     return showDialog(
       context: context,
       builder: (BuildContext context) => WillPopScope(
         onWillPop: () async => false,
         child: AlertDialog(
-          title: const Text(ConstantString.fAbout),
+          title: Text(localization.fAbout),
           contentTextStyle: Theme.of(context).textTheme.bodyLarge,
           content: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              const Text(ConstantString.fAboutNote),
+              Text(localization.fAboutNote),
               const SizedBox(height: 8.0),
               Align(
                 alignment: Alignment.centerLeft,
                 child: InkWell(
                   onTap: () => ref.read(scrcpyProvider.notifier).onTapURLAbout(ConstantString.fGithubScrcpy),
                   child: Text(
-                    ConstantString.fGenymobilescrcpy,
+                    localization.fGenymobilescrcpy,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 12),
                   ),
                 ),
@@ -103,7 +106,7 @@ class HomeScreen extends ConsumerWidget {
                 child: InkWell(
                   onTap: () => ref.read(scrcpyProvider.notifier).onTapURLAbout(ConstantString.fGithubFApp),
                   child: Text(
-                    ConstantString.fFfouryAPPScrcpyManager,
+                    localization.fFfouryAPPScrcpyManager,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 12),
                   ),
                 ),
@@ -112,7 +115,7 @@ class HomeScreen extends ConsumerWidget {
           ),
           actions: <Widget>[
             OutlinedButton(
-              child: const Text('Close'),
+              child: Text(localization.fCancel),
               onPressed: () {
                 Navigator.of(context).pop();
                 ref.read(isAboutppProvider.notifier).state = false;

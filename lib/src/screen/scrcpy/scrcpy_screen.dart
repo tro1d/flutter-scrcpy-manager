@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../providers/localization_provider.dart';
 import '../../providers/scrcpy_provider.dart';
 import '../../utils/colors.dart';
-import '../../utils/constant_string.dart';
 import 'widget/list_device_widget.dart';
 
 class ScrcpyScreen extends ConsumerWidget {
@@ -27,9 +27,10 @@ class ScrcpyScreen extends ConsumerWidget {
     final bool isDark = Theme.of(context).brightness.name == 'dark';
     final TextTheme textTheme = Theme.of(context).textTheme;
     final Color bgColor = FColor.s050(isDark).withOpacity(isDark ? 0.8 : 1);
+    final localization = ref.watch(localizationProvider);
 
-    final TextEditingController noteEC = TextEditingController(text: logCmd.isEmpty ? ConstantString.fNote : logCmd);
-    final String note = logCmd.isEmpty ? ConstantString.fNoteLabel : ConstantString.fLog;
+    final TextEditingController noteEC = TextEditingController(text: logCmd.isEmpty ? localization.fNote : logCmd);
+    final String note = logCmd.isEmpty ? localization.fNoteLabel : localization.fLog;
 
     return Container(
       width: double.infinity,
@@ -48,7 +49,7 @@ class ScrcpyScreen extends ConsumerWidget {
               title: Text.rich(
                 TextSpan(
                   children: <InlineSpan>[
-                    TextSpan(text: ConstantString.fScrcpyVersion, style: textTheme.bodyLarge),
+                    TextSpan(text: localization.fScrcpyVersion, style: textTheme.bodyLarge),
                     TextSpan(text: '${scrcpyStatus['version']}', style: textTheme.titleMedium),
                   ],
                 ),
@@ -56,15 +57,15 @@ class ScrcpyScreen extends ConsumerWidget {
               subtitle: Text(
                 scrcpyStatus['status']!,
                 style: textTheme.titleSmall?.copyWith(
-                  color: scrcpyStatus['status']!.contains(ConstantString.fInstalled) ||
-                          scrcpyStatus['status']!.contains(ConstantString.fDownload)
-                      ? FColor.green
-                      : FColor.red,
+                  color:
+                      scrcpyStatus['status']!.contains(localization.fInstalled) || scrcpyStatus['status']!.contains(localization.fDownload)
+                          ? FColor.green
+                          : FColor.red,
                 ),
               ),
               trailing: IconButton(
                 onPressed:
-                    scrcpyStatus['status'] == ConstantString.fInstalled ? null : () => ref.read(scrcpyProvider.notifier).downloadScrcpy(),
+                    scrcpyStatus['status'] == localization.fInstalled ? null : () => ref.read(scrcpyProvider.notifier).downloadScrcpy(),
                 icon: const Icon(Icons.download_rounded),
               ),
             ),
@@ -78,12 +79,12 @@ class ScrcpyScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(10.0),
               ),
               child: ListTile(
-                title: Text(ConstantString.fStatus, style: textTheme.bodyLarge),
-                leading: Icon(adbStatus.contains(ConstantString.fWaitingDevice) ? Icons.device_unknown_rounded : Icons.devices),
+                title: Text(localization.fStatus, style: textTheme.bodyLarge),
+                leading: Icon(adbStatus.contains(localization.fWaitingDevice) ? Icons.device_unknown_rounded : Icons.devices),
                 subtitle: Text(
                   adbStatus,
                   style: textTheme.titleSmall?.copyWith(
-                    color: scrcpyStatus['status'] != ConstantString.fWaitingDevice ? FColor.green : FColor.red,
+                    color: scrcpyStatus['status'] != localization.fWaitingDevice ? FColor.green : FColor.red,
                   ),
                 ),
                 trailing: IconButton(

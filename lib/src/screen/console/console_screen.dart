@@ -5,6 +5,34 @@ import '../../providers/console_provider.dart';
 import '../../utils/colors.dart';
 
 final runConsoleProvider = AsyncNotifierProvider<RunConsoleNotifier, void>(RunConsoleNotifier.new);
+final adbComandsProvider = Provider<List<String>>((ref) {
+  return [
+    'adb devices',
+    'adb devices -l',
+    'adb kill-server',
+    'adb start-server ',
+    'adb reboot',
+    'adb reboot recovery ',
+    'adb reboot-bootloader',
+    'adb shell',
+    'adb shell getprop',
+    'adb usb',
+    "adb connect ",
+    'adb tcpip',
+    'adb -s',
+    "adb logcat",
+    "adb logcat -c ",
+    "adb shell input keyevent ",
+    "adb shell ls ",
+    "adb shell ls -s ",
+    "adb shell ls -R ",
+    "adb bugreport",
+    "adb backup",
+    "adb restore",
+    "adb sideload",
+    'clear',
+  ];
+});
 
 class ConsoleScreen extends ConsumerWidget {
   const ConsoleScreen({Key? key}) : super(key: key);
@@ -24,32 +52,7 @@ class ConsoleScreen extends ConsumerWidget {
       outputController.text = ref.watch(outputListProvider).join();
     }
 
-    final List<String> adbCommands = [
-      'adb devices',
-      'adb devices -l',
-      'adb kill-server',
-      'adb start-server ',
-      'adb reboot',
-      'adb reboot recovery ',
-      'adb reboot-bootloader',
-      'adb shell',
-      'adb shell getprop',
-      'adb usb',
-      "adb connect ",
-      'adb tcpip',
-      'adb -s',
-      "adb logcat",
-      "adb logcat -c ",
-      "adb shell input keyevent ",
-      "adb shell ls ",
-      "adb shell ls -s ",
-      "adb shell ls -R ",
-      "adb bugreport",
-      "adb backup",
-      "adb restore",
-      "adb sideload",
-      'clear',
-    ];
+    final List<String> adbCommands = ref.watch(adbComandsProvider);
 
     return Column(
       children: <Widget>[

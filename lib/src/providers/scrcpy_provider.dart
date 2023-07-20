@@ -6,14 +6,18 @@ import 'package:archive/archive_io.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import 'package:process_run/process_run.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:process_run/cmd_run.dart';
 
 import '../utils/constant_string.dart';
+import 'localization_provider.dart';
 
 final adbDevicesProvider = AsyncNotifierProvider<ProcessADBNotifier, ProcessADBStatus>(ProcessADBNotifier.new);
 final scrcpyProvider = AsyncNotifierProvider<ScrcpyNotifier, Map<String, String>>(ScrcpyNotifier.new);
+final alwaysOnTopProvider = StateProvider<bool>((ref) => true);
+final recordScreenMp4Provider = StateProvider<bool>((ref) => false);
 
 final devicesListProvider = StateProvider<List<DeviceStatus>>((ref) => []);
 final deviceProvider = StateProvider<DeviceStatus>((ref) => DeviceStatus());
@@ -34,6 +38,7 @@ class ScrcpyNotifier extends AsyncNotifier<Map<String, String>> {
   @override
   Future<Map<String, String>> build() async {
     log('ScrcpyNotifier initialized');
+    final localization = ref.watch(localizationProvider);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? version = prefs.getString('version');
     if (version != null) {
@@ -43,24 +48,25 @@ class ScrcpyNotifier extends AsyncNotifier<Map<String, String>> {
         final Map<String, dynamic> data = response.data;
         final String newVersion = data["tag_name"];
         if (version == newVersion) {
-          return {"status": ConstantString.fInstalled, "version": version};
+          return {"status": localization.fInstalled, "version": version};
         } else {
-          return {"status": "${ConstantString.fUpdate} (${ConstantString.fNewversion} $newVersion)", "version": version};
+          return {"status": "${localization.fUpdate} (${localization.fNewversion} $newVersion)", "version": version};
         }
       } on DioException catch (e) {
         if (e.response != null) {
-          return {"status": "${ConstantString.fInstalled} (${ConstantString.fCheckupdate}${e.response?.data})", "version": version};
+          return {"status": "${localization.fInstalled} (${localization.fCheckupdate}${e.response?.data})", "version": version};
         } else {
-          return {"status": "${ConstantString.fInstalled} (${ConstantString.fCheckupdate}$e)", "version": version};
+          return {"status": "${localization.fInstalled} (${localization.fCheckupdate}$e)", "version": version};
         }
       }
     } else {
-      return {"status": ConstantString.fNotInstalled, "version": '-'};
+      return {"status": localization.fNotInstalled, "version": '-'};
     }
   }
 
   Future<void> downloadScrcpy() async {
     log('Check Version Scrcpy initialized');
+    final localization = ref.watch(localizationProvider);
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final Directory appDocumentsDir = await getApplicationSupportDirectory();
     try {
@@ -78,7 +84,7 @@ class ScrcpyNotifier extends AsyncNotifier<Map<String, String>> {
           pathDL,
           onReceiveProgress: (count, total) async {
             state = AsyncValue.data({
-              "status": "${ConstantString.fDownload}${formatBytes(count)} / ${formatBytes(total)}",
+              "status": "${localization.fDownload}${formatBytes(count)} / ${formatBytes(total)}",
               "version": '-',
             });
             if (count == total) {
@@ -98,7 +104,7 @@ class ScrcpyNotifier extends AsyncNotifier<Map<String, String>> {
                 final Directory dir = Directory(oldVersionPath);
                 await dir.delete(recursive: true);
               }
-              state = AsyncValue.data({"status": ConstantString.fInstalled, "version": newVersion});
+              state = AsyncValue.data({"status": localization.fInstalled, "version": newVersion});
               ref.read(adbDevicesProvider.notifier).initialized();
             }
           },
@@ -116,48 +122,56 @@ class ScrcpyNotifier extends AsyncNotifier<Map<String, String>> {
   Future<void> onTapURLAbout(String url) async => await runCmd(ProcessCmd('start', [url]));
 
   Future<void> runScrcpy(DeviceStatus device, String mode) async {
+    List<String> cmdList = [];
+
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final Directory appDir = await getApplicationSupportDirectory();
     final String? scrcpyVersion = prefs.getString('version');
-    final Directory appDocumentsDir = await getApplicationSupportDirectory();
-    String adbPath = '${appDocumentsDir.path}/scrcpy-win64-$scrcpyVersion';
-    switch (mode) {
-      case ConstantString.fUSB:
-        ref.read(logStatusProvider.notifier).state = "USB Running ${device.deviceModel}";
-        ProcessCmd cmdScrcpy = ProcessCmd(workingDirectory: adbPath, 'scrcpy', ['-s', device.deviceID, '--always-on-top']);
-        final cmdScrcpyLog = await runCmd(cmdScrcpy);
-        if (cmdScrcpyLog.stderr.isNotEmpty) {
-          ref.read(logStatusProvider.notifier).state = cmdScrcpyLog.errText;
-        }
-      case ConstantString.fTCPIP:
-        String splitIp = device.deviceIP.trim().split('.').last;
-        int port = 5556 + int.parse(splitIp);
-        ref.read(logStatusProvider.notifier).state = "TCP/IP Running ${device.deviceModel} [${device.deviceIP}:$port]";
-        ProcessCmd cmdDisconnectFirst = ProcessCmd(workingDirectory: adbPath, 'adb', ['disconnect']);
-        ProcessCmd cmdConnectPort = ProcessCmd(workingDirectory: adbPath, 'adb', ['tcpip', '$port']);
-        ProcessCmd cmdConnectDevice = ProcessCmd(workingDirectory: adbPath, 'adb', ['connect', '${device.deviceIP}:$port']);
-        ProcessCmd cmdScrcpy = ProcessCmd(
-          workingDirectory: adbPath,
-          'scrcpy',
-          ['--tcpip=${device.deviceIP}:$port', '--window-title=${device.deviceModel} [Port $port]', '--always-on-top'],
-        );
-        final cmdDisconnectFirstLog = await runCmd(cmdDisconnectFirst);
-        if (cmdDisconnectFirstLog.stderr.isNotEmpty) {
-          ref.read(logStatusProvider.notifier).state = cmdDisconnectFirstLog.errText;
-        }
-        final cmdConnectPortLog = await runCmd(cmdConnectPort);
-        if (cmdConnectPortLog.stderr.isNotEmpty) {
-          ref.read(logStatusProvider.notifier).state = cmdConnectPortLog.errText;
-        }
-        final cmdConnectDeviceLog = await runCmd(cmdConnectDevice);
-        if (cmdConnectDeviceLog.stderr.isNotEmpty) {
-          ref.read(logStatusProvider.notifier).state = cmdConnectDeviceLog.errText;
-        }
-        final cmdScrcpyLog = await runCmd(cmdScrcpy);
-        if (cmdScrcpyLog.stderr.isNotEmpty) {
-          ref.read(logStatusProvider.notifier).state = cmdScrcpyLog.errText;
-        }
-      default:
-        null;
+    String adbPath = '${appDir.path}/scrcpy-win64-$scrcpyVersion';
+    final localization = ref.watch(localizationProvider);
+
+    if (ref.watch(alwaysOnTopProvider)) cmdList.add('--always-on-top');
+    if (ref.watch(recordScreenMp4Provider)) {
+      final Directory appDocumentsDir = await getApplicationDocumentsDirectory();
+      final String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+      final String folderPath = p.join(appDocumentsDir.path, 'FfouryAPP');
+      final String filePath = p.join(folderPath, '$fileName.mp4');
+
+      final Directory dir = Directory(folderPath);
+      if (!await dir.exists()) await dir.create(recursive: true);
+
+      cmdList.add('--record=$filePath');
+    }
+
+    if (mode == localization.fUSB) {
+      ref.read(logStatusProvider.notifier).state = "USB Running ${device.deviceModel}";
+      final ProcessCmd cmdScrcpy = ProcessCmd(workingDirectory: adbPath, 'scrcpy', ['--serial=${device.deviceID}', ...cmdList]);
+      final ProcessResult cmdScrcpyLog = await runCmd(cmdScrcpy);
+      if (cmdScrcpyLog.stderr.isNotEmpty) ref.read(logStatusProvider.notifier).state = cmdScrcpyLog.errText;
+    } else if (mode == localization.fTCPIP) {
+      final String splitIp = device.deviceIP.trim().split('.').last;
+      final int port = 5556 + int.parse(splitIp);
+      ref.read(logStatusProvider.notifier).state = "TCP/IP Running ${device.deviceModel} [${device.deviceIP}:$port]";
+
+      final ProcessCmd cmdDisconnectFirst = ProcessCmd(workingDirectory: adbPath, 'adb', ['disconnect']);
+      final ProcessCmd cmdConnectPort = ProcessCmd(workingDirectory: adbPath, 'adb', ['tcpip', '$port']);
+      final ProcessCmd cmdConnectDevice = ProcessCmd(workingDirectory: adbPath, 'adb', ['connect', '${device.deviceIP}:$port']);
+      final ProcessCmd cmdScrcpy = ProcessCmd(
+        workingDirectory: adbPath,
+        'scrcpy',
+        ['--tcpip=${device.deviceIP}:$port', ...cmdList, '--window-title=${device.deviceModel} [Port $port]'],
+      );
+
+      final cmdDisconnectFirstLog = await runCmd(cmdDisconnectFirst);
+      if (cmdDisconnectFirstLog.stderr.isNotEmpty) ref.read(logStatusProvider.notifier).state = cmdDisconnectFirstLog.errText;
+      final cmdConnectPortLog = await runCmd(cmdConnectPort);
+      if (cmdConnectPortLog.stderr.isNotEmpty) ref.read(logStatusProvider.notifier).state = cmdConnectPortLog.errText;
+      final cmdConnectDeviceLog = await runCmd(cmdConnectDevice);
+      if (cmdConnectDeviceLog.stderr.isNotEmpty) ref.read(logStatusProvider.notifier).state = cmdConnectDeviceLog.errText;
+      final cmdScrcpyLog = await runCmd(cmdScrcpy);
+      if (cmdScrcpyLog.stderr.isNotEmpty) ref.read(logStatusProvider.notifier).state = cmdScrcpyLog.errText;
+    } else {
+      null;
     }
   }
 

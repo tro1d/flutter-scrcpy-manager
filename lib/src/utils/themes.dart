@@ -23,6 +23,7 @@ ThemeData appTheme(AppTheme appTheme) {
         highlightColor: Colors.transparent,
         splashColor: Colors.transparent,
         hoverColor: Colors.transparent,
+        popupMenuTheme: _popupMenuThemeData(AppTheme.isLight),
       );
     case AppTheme.isDark:
       return ThemeData(
@@ -41,6 +42,7 @@ ThemeData appTheme(AppTheme appTheme) {
         highlightColor: Colors.transparent,
         splashColor: Colors.transparent,
         hoverColor: Colors.transparent,
+        popupMenuTheme: _popupMenuThemeData(AppTheme.isDark),
       );
     default:
       return ThemeData();
@@ -129,7 +131,7 @@ OutlinedButtonThemeData _outlinedButtonThemeDataa(AppTheme appTheme) {
   switch (appTheme) {
     case AppTheme.isLight:
       return OutlinedButtonThemeData(
-        style: ElevatedButton.styleFrom(
+        style: OutlinedButton.styleFrom(
           side: BorderSide(color: FColor.isLightMaterialColor.shade900, strokeAlign: BorderSide.strokeAlignInside),
           padding: const EdgeInsets.all(10.0),
           textStyle: _textThemeData(appTheme).titleMedium?.copyWith(fontSize: 12.0),
@@ -138,8 +140,8 @@ OutlinedButtonThemeData _outlinedButtonThemeDataa(AppTheme appTheme) {
       );
     case AppTheme.isDark:
       return OutlinedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white70,
+        style: OutlinedButton.styleFrom(
+          foregroundColor: const Color(0xFFE1F5FE),
           side: BorderSide(color: FColor.isLightMaterialColor.shade600, strokeAlign: BorderSide.strokeAlignInside),
           padding: const EdgeInsets.all(10.0),
           textStyle: _textThemeData(appTheme).titleMedium?.copyWith(fontSize: 12.0),
@@ -168,5 +170,30 @@ InputDecorationTheme _inputDecorationThemeData(AppTheme appTheme) {
       );
     default:
       return const InputDecorationTheme();
+  }
+}
+
+PopupMenuThemeData _popupMenuThemeData(AppTheme appTheme) {
+  switch (appTheme) {
+    case AppTheme.isLight:
+      return PopupMenuThemeData(
+        color: FColor.isLightMaterialColor[50],
+        position: PopupMenuPosition.under,
+        textStyle: TextStyle(fontSize: 14.0, color: FColor.isDarkMaterialColor[50]),
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: FColor.isDarkMaterialColor.shade50.withOpacity(0.3)),
+          borderRadius: BorderRadius.circular(10),
+        ),
+      );
+    case AppTheme.isDark:
+      return PopupMenuThemeData(
+        color: FColor.isDarkMaterialColor[100],
+        position: PopupMenuPosition.under,
+        textStyle: TextStyle(fontSize: 14.0, color: FColor.isLightMaterialColor[50]),
+        elevation: 3,
+      );
+    default:
+      return const PopupMenuThemeData();
   }
 }

@@ -1,0 +1,52 @@
+import 'dart:ui';
+
+import 'localization.dart';
+
+Localization of(Locale locale) {
+  return Localization(
+    // ID
+    flanguageCode: 'id',
+    flanguage: 'Bahasa',
+    fApp: "Scrcpy Manager",
+    fOnline: "Online",
+    fOffline: "Offline",
+    fUnauthorized: "Unauthorized",
+    fLoading: "Loading...",
+    fNotInstalled: "Not Installed",
+    fUpdate: "Update",
+    fNewversion: "Versi Terbaru",
+    fInstalled: "Installed",
+    fStatus: "Status: ",
+    fDeviceIP: "Device IP: ",
+    fDownload: "Mengunduh: ",
+    fCheckupdate: "Check update: ",
+    fScrcpyVersion: "Scrcpy Version: ",
+    fWaitingDevice: "Menunggu perangkat terhubung...",
+    fDeviceAttached: "Perangkat terhubung",
+    fUSB: "USB",
+    fTCPIP: "TCP/IP",
+    fNoteLabel: "Catatan",
+    fLog: "Log",
+    fNote: 'Dalam mode TCP/IP hanya bisa digunakan dalam satu device. Jika ingin lebih dari 1 device bisa gunakan console.',
+    fOpenScrcpyManager: "Buka Scrcpy Manager",
+    fOpenConsole: "Buka Console",
+    fThemeMode: "Mode Tema",
+    fDark: "Gelap",
+    fLight: "Terang",
+    fSettings: "Pengaturan",
+    fUninstallScrcpy: "Uninstall Scrcpy",
+    fUpdateScrcpy: "Perbaharui Scrcpy",
+    fAbout: "Tentang",
+    fAboutNote: "This is a simple Scrcpy Manager with Command Prompt created in Flutter.",
+    fFfouryAPPScrcpyManager: "Scrcpy Manager - FfouryAPP",
+    fGenymobilescrcpy: "Scrcpy - Genymobile",
+    fAlwaysOnTop: 'Selalu di atas',
+    fRecordScreen: 'Rekam layar',
+    fConnect: 'Sambungkan',
+    fCancel: "Batal",
+    fExit: "Keluar",
+    fExitDisconnect: "Keluar dan Putuskan",
+    fExitQ: "Apaka anda yakin ingin keluar ?",
+    fExitN: "Jangan lupa untuk memutuskan semuan koneksi ADB.",
+  );
+}

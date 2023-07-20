@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:window_manager/window_manager.dart';
 
+import 'src/providers/localization_provider.dart';
 import 'src/providers/scrcpy_provider.dart';
 import 'src/providers/theme_provider.dart';
 import 'src/providers/tray_manager_provider.dart';
@@ -50,6 +51,7 @@ class _MyAppState extends ConsumerState<MyApp> {
       theme: appTheme(AppTheme.isLight),
       darkTheme: appTheme(AppTheme.isDark),
       themeMode: ref.watch(themeProvider),
+      locale: ref.watch(localeProvider),
       home: const HomeScreen(),
     );
   }

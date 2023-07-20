@@ -1,7 +1,7 @@
 name: flutter_scrcpy_manager
 description: This is a simple Scrcpy Manager with Command Prompt created in Flutter.
 publish_to: 'none'
-version: 0.1.0
+version: 1.0.0
 
 environment:
   sdk: '>=3.0.5 <4.0.0'
@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   flutter_riverpod: ^2.3.6
   path_provider: ^2.0.14
+  path: ^1.8.3
   shared_preferences: ^2.2.0
   process_run: ^0.13.0
   window_manager: ^0.3.5
