@@ -1,22 +1,21 @@
 # Scrcpy Manager
-Ini adalah `Scrcpy Manager` sederhana dengan `Command Prompt` untuk Windows yang dibuat di Flutter.
+This is a simple `Scrcpy Manager` with `Command Prompt` for Windows created using Flutter.
 
-![screenshot](images/Screenshot_2023-07-15_23-58-35.png)
+![2023-07-21_04-20-45](https://github.com/tro1d/flutter-scrcpy-manager/assets/23493345/f7571abf-a249-40fa-982e-3fc60b6f6e72)
 
-
-https://github.com/tro1d/flutter-scrcpy-manager/assets/23493345/ea85cbb1-0192-423a-9390-e146b64f6aa5
-
+https://github.com/tro1d/flutter-scrcpy-manager/assets/23493345/58971475-a1b4-4034-968c-674394877c1b
 
 
-## Fitur
-- Auto deteksi perangkat
-- Deteksi IP untuk cek status koneksi antara perangkat dengan Windows
-- Cek Versi terbaru Screen Copy
-- Console Command Prompt dan ADB
-- Tanpa edit path environment
-- dan lainnya. 
 
-`Note`: Membutuhkan koneksi internet untuk awal Download dan cek versi terbaru Scrcpy.
+## Features
+- Automatic device detection
+- IP detection to check the connection status between the device and Windows
+- Check for the latest Screen Copy version
+- Console Command Prompt and ADB
+- No need to edit environment paths
+- and more.
+
+`Note`: Requires an internet connection for the initial download and checking the latest Scrcpy version.
 
 ## Support Scrcpy
 - [GitHub Scrcpy](https://github.com/Genymobile/scrcpy/)
